@@ -2572,6 +2572,37 @@ main {
   text-transform: uppercase;
 }
 
+body.home-page .site-header {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: 0.32rem;
+  padding-top: 8px;
+  padding-bottom: 12px;
+}
+
+body.home-page .tabs {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+}
+
+body.home-page .brand {
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: center;
+}
+
+body.home-page .header-contact {
+  grid-column: 1;
+  grid-row: 3;
+  margin-top: -0.5rem;
+}
+
+body.home-page .longhorn-logo {
+  width: clamp(300px, 34vw, 500px);
+  height: 98px;
+}
+
 .premium-hero {
   grid-template-columns: 1fr;
   gap: clamp(22px, 4vw, 42px);
@@ -2714,9 +2745,9 @@ main {
   background-image: var(--shop-path-image);
   background-position: center;
   background-size: cover;
-  filter: blur(7px);
+  filter: blur(2px);
   opacity: 0;
-  transform: scale(1.08);
+  transform: scale(1.03);
   transition: opacity 220ms ease;
 }
 
@@ -2725,11 +2756,11 @@ main {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(247, 243, 238, 0.94) 68%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(247, 243, 238, 0.82) 72%);
 }
 
 .shop-path-grid a.inventory-path::before {
-  opacity: 0.46;
+  opacity: 0.7;
 }
 
 .shop-path-grid a:hover,
@@ -2775,6 +2806,20 @@ main {
     margin-right: -14px;
     margin-left: -14px;
     font-size: 0.68rem;
+  }
+
+  body.home-page .site-header {
+    align-items: stretch;
+    padding: 10px 14px 12px;
+  }
+
+  body.home-page .tabs {
+    width: 100%;
+  }
+
+  body.home-page .longhorn-logo {
+    width: min(320px, 84vw);
+    height: 76px;
   }
 
   .premium-hero-copy h1 {
