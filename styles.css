@@ -2007,6 +2007,13 @@ body.longhorn {
   font-weight: 760;
 }
 
+.tabs button.tab {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
 .tab:hover,
 .tab:focus-visible,
 .tab.active {
