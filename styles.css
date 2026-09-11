@@ -2922,3 +2922,110 @@ body.home-page .longhorn-logo {
     min-height: 132px;
   }
 }
+
+/* Navigation and warm accent polish */
+.longhorn .site-header {
+  border-bottom-color: rgba(93, 49, 11, 0.16);
+}
+
+.longhorn .tabs {
+  gap: 0.32rem;
+  padding: 5px;
+  border: 1px solid rgba(93, 49, 11, 0.12);
+  background: rgba(247, 243, 238, 0.84);
+}
+
+.longhorn .tab,
+.longhorn .tabs button.tab,
+.longhorn .nav-dropdown a {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 0.92rem;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: rgba(23, 17, 11, 0.72);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 820;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.longhorn .tab:hover,
+.longhorn .tab:focus-visible,
+.longhorn .nav-dropdown a:hover,
+.longhorn .nav-dropdown a:focus-visible {
+  background: #ffffff;
+  color: var(--accent-dark);
+}
+
+.longhorn .tab.active,
+.longhorn .nav-menu:focus-within > .tab,
+.longhorn .nav-menu:hover > .tab {
+  color: #ffffff;
+  background: var(--accent-dark);
+}
+
+.longhorn .nav-dropdown {
+  min-width: 100%;
+  border-color: rgba(93, 49, 11, 0.14);
+  background: rgba(255, 255, 255, 0.97);
+}
+
+.service-banner {
+  background: linear-gradient(90deg, #4c2606, #8a4f16, #4c2606);
+}
+
+.shop-path-grid a {
+  border-color: rgba(93, 49, 11, 0.18);
+}
+
+.shop-path-grid strong,
+.featured-bar span,
+.vehicle-card-heading h2 {
+  color: #17110b;
+}
+
+.inventory-type-filter label {
+  border-color: rgba(93, 49, 11, 0.18);
+  background: #fff8f0;
+}
+
+@media (max-width: 860px) {
+  .longhorn .tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .longhorn .nav-menu {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .longhorn .tab,
+  .longhorn .tabs button.tab {
+    width: 100%;
+    min-height: 42px;
+    padding: 0 0.7rem;
+    font-size: 0.76rem;
+  }
+
+  .longhorn .nav-dropdown {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .longhorn .tabs {
+    grid-template-columns: 1fr;
+  }
+}

@@ -393,10 +393,32 @@ async function renderInventory() {
   const search = document.getElementById("inventory-search");
   const evFilter = document.getElementById("inventory-filter-ev");
   const nonEvFilter = document.getElementById("inventory-filter-non-ev");
+  const caption = document.getElementById("inventory-caption");
+  const title = document.getElementById("inventory-title");
   const selectedType = new URLSearchParams(location.search).get("type");
   if (evFilter) evFilter.checked = selectedType !== "non-ev";
   if (nonEvFilter) nonEvFilter.checked = selectedType === "non-ev";
+  const updateInventoryCopy = () => {
+    const evSelected = Boolean(evFilter?.checked);
+    const nonEvSelected = Boolean(nonEvFilter?.checked);
+    if (evSelected && !nonEvSelected) {
+      if (title) title.textContent = "EV Inventory";
+      if (caption) caption.textContent = "Browse used Tesla and electric vehicles from our Austin-area dealership, serving buyers throughout Texas.";
+      document.title = "Used Tesla & EV Inventory in Austin, TX | Longhorn EV";
+      return;
+    }
+    if (nonEvSelected && !evSelected) {
+      if (title) title.textContent = "Non-EV Inventory";
+      if (caption) caption.textContent = "Browse curated gas, hybrid, and specialty vehicles from our Austin-area dealership, serving buyers throughout Texas.";
+      document.title = "Non-EV Inventory in Austin, TX | Longhorn EV";
+      return;
+    }
+    if (title) title.textContent = "Inventory";
+    if (caption) caption.textContent = "Browse curated EV and non-EV inventory from our Austin-area dealership, serving buyers throughout Texas.";
+    document.title = "Vehicle Inventory in Austin, TX | Longhorn EV";
+  };
   const filterCars = () => {
+    updateInventoryCopy();
     const term = (search?.value || "").trim().toLowerCase();
     const typeFilters = [];
     if (evFilter?.checked) typeFilters.push("EV");
