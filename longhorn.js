@@ -263,12 +263,16 @@ function setupPhotoArrows(scope = document) {
 
 function inventoryPhotosForType(cars, type) {
   const matchingCars = cars.filter((car) => vehicleType(car) === type);
-  const sourceCars = matchingCars.length ? matchingCars : cars;
-  const photos = sourceCars.flatMap(getCarPhotos).filter(Boolean);
-  return photos.length ? photos : [defaultVehicleImage];
+  return matchingCars.flatMap(getCarPhotos).filter(Boolean);
 }
 
 function setShopPathBackground(tile, photo) {
+  if (!photo) {
+    tile.classList.remove("has-inventory-photo");
+    tile.style.removeProperty("--shop-path-image");
+    return;
+  }
+  tile.classList.add("has-inventory-photo");
   tile.style.setProperty("--shop-path-image", `url("${photo}")`);
 }
 
@@ -278,6 +282,10 @@ async function renderShopPathBackgrounds() {
   const cars = await getInventory();
   tiles.forEach((tile) => {
     const photos = inventoryPhotosForType(cars, tile.dataset.inventoryType);
+    if (!photos.length) {
+      setShopPathBackground(tile, "");
+      return;
+    }
     let index = 0;
     setShopPathBackground(tile, photos[index]);
     if (photos.length < 2) return;

@@ -2759,7 +2759,7 @@ body.home-page .longhorn-logo {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(247, 243, 238, 0.82) 72%);
 }
 
-.shop-path-grid a.inventory-path::before {
+.shop-path-grid a.inventory-path.has-inventory-photo::before {
   opacity: 0.7;
 }
 
