@@ -2751,6 +2751,10 @@ body.home-page .longhorn-logo {
   transition: opacity 220ms ease;
 }
 
+.shop-path-grid a.sell-photo-path::before {
+  background-position: center 70%;
+}
+
 .shop-path-grid a::after {
   content: "";
   position: absolute;
