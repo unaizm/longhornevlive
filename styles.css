@@ -2045,45 +2045,46 @@ main {
 }
 
 .home-hero {
+  position: relative;
   display: grid;
   justify-items: center;
-  gap: 0.6rem;
-  min-height: clamp(170px, 26vh, 280px);
-  padding: clamp(22px, 4vw, 52px) 0 clamp(14px, 2.5vw, 30px);
+  align-items: center;
+  overflow: hidden;
+  min-height: clamp(300px, 44vh, 500px);
+  padding: clamp(34px, 6vw, 76px) 0;
+  isolation: isolate;
   text-align: center;
 }
 
-.home-hero .hero-kicker {
-  margin: 0;
-  color: var(--accent);
-  font-size: 0.78rem;
-  font-weight: 850;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.home-hero h1 {
+.hero-logo-mark {
+  position: absolute;
+  z-index: -1;
+  width: min(980px, 108vw);
   max-width: none;
-  margin: 0;
-  font-size: clamp(3.2rem, 8vw, 7.8rem);
-  font-weight: 850;
-  letter-spacing: 0;
-  line-height: 0.88;
+  opacity: 0.14;
+  filter: blur(1.4px);
+  transform: translateY(-2%);
+  user-select: none;
+  pointer-events: none;
 }
 
-.home-hero p:not(.hero-kicker) {
-  max-width: 610px;
-  margin: 0;
-  color: rgba(23, 17, 11, 0.68);
-  font-size: clamp(1rem, 1.55vw, 1.28rem);
-  font-weight: 650;
-  line-height: 1.5;
+.hero-logo-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  gap: 0.8rem;
+  width: min(760px, 100%);
+  padding: 1rem;
+  border: 1px solid rgba(92, 58, 29, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.52);
+  box-shadow: 0 24px 70px rgba(74, 41, 14, 0.1);
+  backdrop-filter: blur(16px) saturate(135%);
 }
 
 .rentals-layout.home-showcase {
-  grid-template-columns: minmax(220px, 0.42fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
-  gap: clamp(16px, 3.5vw, 42px);
+  gap: clamp(14px, 3vw, 28px);
   min-height: auto;
 }
 
@@ -2091,9 +2092,9 @@ main {
   top: 122px;
 }
 
-.home-actions {
+.home-actions,
+.hero-logo-actions {
   align-content: start;
-  padding-top: 2.15rem;
 }
 
 .featured-heading {
@@ -2125,7 +2126,9 @@ main {
 }
 
 .home-actions .contact-cta:nth-child(2),
-.home-actions .contact-cta:nth-child(3) {
+.home-actions .contact-cta:nth-child(3),
+.hero-logo-actions .contact-cta:nth-child(2),
+.hero-logo-actions .contact-cta:nth-child(3) {
   background: rgba(247, 243, 238, 0.96);
   color: var(--text);
   box-shadow: inset 0 0 0 1px rgba(92, 58, 29, 0.12);
@@ -2156,7 +2159,7 @@ main {
 
 .home-showcase .vehicle-card {
   grid-template-columns: 1.18fr 0.82fr;
-  min-height: clamp(420px, 48vw, 610px);
+  min-height: clamp(390px, 42vw, 560px);
 }
 
 .home-showcase .vehicle-media {
@@ -2297,8 +2300,18 @@ main {
   }
 
   .home-hero {
-    min-height: 190px;
-    padding-top: 22px;
+    min-height: 310px;
+    padding: 34px 0;
+  }
+
+  .hero-logo-mark {
+    width: min(660px, 132vw);
+    opacity: 0.16;
+  }
+
+  .hero-logo-actions {
+    grid-template-columns: 1fr;
+    width: min(420px, 100%);
   }
 
   .rentals-layout.home-showcase,
@@ -2330,13 +2343,5 @@ main {
 @media (max-width: 520px) {
   .site-header {
     width: 100%;
-  }
-
-  .home-hero h1 {
-    font-size: clamp(3rem, 16vw, 4.7rem);
-  }
-
-  .home-hero p:not(.hero-kicker) {
-    font-size: 1rem;
   }
 }
