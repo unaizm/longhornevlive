@@ -42,7 +42,7 @@
         ]
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260911miraj1">
+    <link rel="stylesheet" href="styles.css?v=20260911shoppics1">
   </head>
   <body class="longhorn">
     <header class="site-header">
@@ -79,25 +79,35 @@
       <section class="panel active" id="home" aria-label="Longhorn EV home">
         <div class="service-banner">White-glove sourcing · Nationwide delivery · Offers on any vehicle</div>
 
-        <div class="premium-hero">
-          <div class="premium-hero-copy">
-            <p class="hero-kicker">Longhorn EV</p>
-            <h1>Premium vehicles, sourced with intention.</h1>
-            <p>Shop curated EV inventory, request a specific vehicle, or get a direct offer on anything you drive.</p>
-            <div class="home-actions" aria-label="Longhorn EV quick actions">
-              <a class="contact-cta" href="inventory.html">View Inventory</a>
-              <a class="contact-cta" href="/sell">Get Your Offer</a>
-            </div>
+        <section class="shop-paths" aria-labelledby="shop-paths-title">
+          <h2 id="shop-paths-title">Shop Your Way</h2>
+          <div class="shop-path-grid">
+            <a class="inventory-path" data-inventory-type="EV" href="inventory.html?type=ev">
+              <span>Inventory</span>
+              <strong>Electric Vehicles</strong>
+            </a>
+            <a class="inventory-path" data-inventory-type="Non-EV" href="inventory.html?type=non-ev">
+              <span>Inventory</span>
+              <strong>Non-EV Vehicles</strong>
+            </a>
+            <a href="/sell">
+              <span>Sell or trade</span>
+              <strong>Get Your Offer</strong>
+            </a>
+            <a href="sms:5129001036">
+              <span>Concierge</span>
+              <strong>Source a Vehicle</strong>
+            </a>
           </div>
+        </section>
 
-          <div class="home-showcase" aria-label="Featured Longhorn EV vehicle">
-            <div class="featured-bar">
-              <span>Featured Vehicle</span>
-              <a href="inventory.html">View all</a>
-            </div>
-            <div class="fleet-grid">
-              <div id="featured-vehicle"></div>
-            </div>
+        <div class="home-showcase" aria-label="Featured Longhorn EV vehicle">
+          <div class="featured-bar">
+            <span>Featured Vehicle</span>
+            <a href="inventory.html">View all</a>
+          </div>
+          <div class="fleet-grid">
+            <div id="featured-vehicle"></div>
           </div>
         </div>
 
@@ -118,28 +128,6 @@
             <p>Tell us what you want and we can help source the right vehicle.</p>
           </article>
         </div>
-
-        <section class="shop-paths" aria-labelledby="shop-paths-title">
-          <h2 id="shop-paths-title">Shop Your Way</h2>
-          <div class="shop-path-grid">
-            <a href="inventory.html?type=ev">
-              <span>Inventory</span>
-              <strong>Electric Vehicles</strong>
-            </a>
-            <a href="inventory.html?type=non-ev">
-              <span>Inventory</span>
-              <strong>Non-EV Vehicles</strong>
-            </a>
-            <a href="/sell">
-              <span>Sell or trade</span>
-              <strong>Get Your Offer</strong>
-            </a>
-            <a href="sms:5129001036">
-              <span>Concierge</span>
-              <strong>Source a Vehicle</strong>
-            </a>
-          </div>
-        </section>
       </section>
 
       <section class="panel info-panel" id="about" aria-labelledby="about-title">
@@ -221,6 +209,6 @@
     </footer>
 
     <script src="script.js?v=20260608evonly1"></script>
-    <script src="longhorn.js?v=20260902openfilters1"></script>
+    <script src="longhorn.js?v=20260911shoppics1"></script>
   </body>
 </html>

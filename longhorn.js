@@ -261,6 +261,33 @@ function setupPhotoArrows(scope = document) {
   });
 }
 
+function inventoryPhotosForType(cars, type) {
+  const matchingCars = cars.filter((car) => vehicleType(car) === type);
+  const sourceCars = matchingCars.length ? matchingCars : cars;
+  const photos = sourceCars.flatMap(getCarPhotos).filter(Boolean);
+  return photos.length ? photos : [defaultVehicleImage];
+}
+
+function setShopPathBackground(tile, photo) {
+  tile.style.setProperty("--shop-path-image", `url("${photo}")`);
+}
+
+async function renderShopPathBackgrounds() {
+  const tiles = Array.from(document.querySelectorAll(".inventory-path[data-inventory-type]"));
+  if (!tiles.length) return;
+  const cars = await getInventory();
+  tiles.forEach((tile) => {
+    const photos = inventoryPhotosForType(cars, tile.dataset.inventoryType);
+    let index = 0;
+    setShopPathBackground(tile, photos[index]);
+    if (photos.length < 2) return;
+    window.setInterval(() => {
+      index = (index + 1) % photos.length;
+      setShopPathBackground(tile, photos[index]);
+    }, 4200);
+  });
+}
+
 async function renderFeatured() {
   const target = document.getElementById("featured-vehicle");
   if (!target) return;
@@ -364,5 +391,6 @@ async function renderVehicleDetail() {
 }
 
 renderFeatured();
+renderShopPathBackgrounds();
 renderInventory();
 renderVehicleDetail();

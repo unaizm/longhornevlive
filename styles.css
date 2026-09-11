@@ -2624,14 +2624,15 @@ main {
 
 .home-showcase {
   width: min(980px, 100%);
-  margin: 0 auto;
+  margin: 0 auto clamp(34px, 5vw, 62px);
 }
 
 .featured-bar {
   margin-bottom: 0.65rem;
 }
 
-.premium-hero .vehicle-card {
+.premium-hero .vehicle-card,
+.home-showcase .vehicle-card {
   grid-template-columns: minmax(0, 1.12fr) minmax(280px, 0.88fr);
   overflow: hidden;
   border-color: rgba(92, 58, 29, 0.12);
@@ -2639,13 +2640,15 @@ main {
   box-shadow: 0 20px 64px rgba(74, 41, 14, 0.1);
 }
 
-.premium-hero .vehicle-media {
+.premium-hero .vehicle-media,
+.home-showcase .vehicle-media {
   aspect-ratio: auto;
   min-height: clamp(300px, 34vw, 430px);
   background: #ffffff;
 }
 
-.premium-hero .vehicle-details {
+.premium-hero .vehicle-details,
+.home-showcase .vehicle-details {
   align-content: center;
   padding: clamp(18px, 3vw, 34px);
   background: #f8f4ef;
@@ -2667,7 +2670,7 @@ main {
 .shop-paths {
   display: grid;
   gap: 1.05rem;
-  padding-bottom: clamp(26px, 5vw, 58px);
+  padding: clamp(34px, 6vw, 78px) 0 clamp(26px, 5vw, 58px);
 }
 
 .shop-paths h2 {
@@ -2685,6 +2688,8 @@ main {
 }
 
 .shop-path-grid a {
+  position: relative;
+  isolation: isolate;
   display: grid;
   align-content: end;
   min-height: 172px;
@@ -2698,6 +2703,33 @@ main {
   text-decoration: none;
   box-shadow: 0 12px 34px rgba(74, 41, 14, 0.06);
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  overflow: hidden;
+}
+
+.shop-path-grid a::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  z-index: -2;
+  background-image: var(--shop-path-image);
+  background-position: center;
+  background-size: cover;
+  filter: blur(7px);
+  opacity: 0;
+  transform: scale(1.08);
+  transition: opacity 220ms ease;
+}
+
+.shop-path-grid a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(247, 243, 238, 0.94) 68%);
+}
+
+.shop-path-grid a.inventory-path::before {
+  opacity: 0.46;
 }
 
 .shop-path-grid a:hover,
@@ -2727,7 +2759,8 @@ main {
     padding-top: clamp(28px, 5vw, 52px);
   }
 
-  .premium-hero .vehicle-card {
+  .premium-hero .vehicle-card,
+  .home-showcase .vehicle-card {
     grid-template-columns: 1fr;
   }
 
