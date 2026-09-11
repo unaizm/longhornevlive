@@ -2345,3 +2345,213 @@ main {
     width: 100%;
   }
 }
+
+/* Premium showroom hero refresh */
+.premium-hero {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.68fr) minmax(520px, 1fr);
+  align-items: center;
+  gap: clamp(24px, 5vw, 72px);
+  min-height: calc(100vh - 172px);
+  padding: clamp(26px, 5vw, 64px) 0 clamp(20px, 4vw, 46px);
+}
+
+.premium-hero-copy {
+  display: grid;
+  gap: 1.15rem;
+  align-content: center;
+}
+
+.premium-hero-copy .hero-kicker {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.74rem;
+  font-weight: 880;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.premium-hero-copy h1 {
+  max-width: 620px;
+  margin: 0;
+  font-size: clamp(3.1rem, 6.4vw, 6.8rem);
+  font-weight: 880;
+  letter-spacing: 0;
+  line-height: 0.88;
+}
+
+.premium-hero-copy p:not(.hero-kicker) {
+  max-width: 490px;
+  margin: 0;
+  color: rgba(23, 17, 11, 0.68);
+  font-size: clamp(1rem, 1.3vw, 1.16rem);
+  font-weight: 650;
+  line-height: 1.58;
+}
+
+.premium-hero .home-actions {
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+  width: min(390px, 100%);
+  padding-top: 0.35rem;
+}
+
+.premium-hero .contact-cta {
+  min-height: 48px;
+}
+
+.home-showcase {
+  min-width: 0;
+}
+
+.featured-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 880;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.featured-bar a {
+  color: var(--accent);
+  font-size: 0.74rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.featured-bar a:hover,
+.featured-bar a:focus-visible {
+  color: var(--accent-dark);
+  outline: none;
+}
+
+.premium-hero .vehicle-card {
+  grid-template-columns: 1fr;
+  min-height: 0;
+  border-color: rgba(92, 58, 29, 0.12);
+  background: linear-gradient(180deg, #ffffff 0%, #f8f4ef 100%);
+  box-shadow: 0 28px 76px rgba(74, 41, 14, 0.12);
+}
+
+.premium-hero .vehicle-media {
+  min-height: 0;
+  aspect-ratio: 16 / 8.7;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 243, 238, 0.72)),
+    #ffffff;
+}
+
+.premium-hero .vehicle-media img {
+  padding: clamp(18px, 4vw, 44px);
+}
+
+.premium-hero .vehicle-details {
+  align-content: start;
+  gap: 1rem;
+  padding: clamp(18px, 2.5vw, 28px);
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.premium-hero .vehicle-details h2 {
+  font-size: clamp(1.45rem, 2.3vw, 2.25rem);
+}
+
+.trust-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  margin: clamp(10px, 2vw, 24px) 0 clamp(34px, 5vw, 70px);
+  border: 1px solid rgba(92, 58, 29, 0.12);
+  border-radius: 6px;
+  background: rgba(92, 58, 29, 0.12);
+}
+
+.trust-row article {
+  display: grid;
+  gap: 0.45rem;
+  padding: clamp(18px, 2.6vw, 30px);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.trust-row span {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.trust-row strong {
+  color: var(--text);
+  font-size: clamp(1rem, 1.25vw, 1.14rem);
+}
+
+.trust-row p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.home-hero,
+.hero-logo-mark,
+.hero-logo-actions,
+.featured-heading {
+  display: none;
+}
+
+@media (max-width: 980px) {
+  .premium-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 1.25rem;
+    padding: 20px 0 26px;
+  }
+
+  .premium-hero-copy {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .premium-hero-copy h1 {
+    font-size: clamp(2.25rem, 8.5vw, 3.65rem);
+  }
+
+  .premium-hero-copy p:not(.hero-kicker) {
+    max-width: 560px;
+  }
+
+  .premium-hero .home-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: min(620px, 100%);
+  }
+
+  .trust-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .premium-hero {
+    gap: 1.4rem;
+    padding-top: 24px;
+  }
+
+  .premium-hero-copy h1 {
+    font-size: clamp(2.8rem, 15vw, 4.5rem);
+  }
+
+  .premium-hero .home-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .premium-hero .vehicle-media {
+    aspect-ratio: 16 / 10;
+  }
+}
