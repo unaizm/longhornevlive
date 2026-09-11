@@ -2722,7 +2722,8 @@ body.home-page .longhorn-logo {
   position: relative;
   isolation: isolate;
   display: grid;
-  align-content: end;
+  align-content: center;
+  justify-items: center;
   min-height: 172px;
   padding: 1.1rem;
   border: 1px solid rgba(92, 58, 29, 0.12);
@@ -2731,6 +2732,7 @@ body.home-page .longhorn-logo {
     linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(247, 243, 238, 0.92)),
     #ffffff;
   color: var(--text);
+  text-align: center;
   text-decoration: none;
   box-shadow: 0 12px 34px rgba(74, 41, 14, 0.06);
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
@@ -2765,7 +2767,7 @@ body.home-page .longhorn-logo {
 
 .shop-path-grid a.inventory-path.has-inventory-photo::before,
 .shop-path-grid a.static-photo-path::before {
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 .shop-path-grid a:hover,
