@@ -1949,3 +1949,387 @@ h1 {
     min-height: 320px;
   }
 }
+
+
+/* Longhorn EV 2026 visual refresh */
+body.longhorn {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-soft: #f7f3ee;
+  --surface-warm: #fbf8f4;
+  --text: #17110b;
+  --muted: #6c6258;
+  --line: rgba(92, 58, 29, 0.14);
+  --line-strong: rgba(126, 74, 25, 0.34);
+  --accent: #8a4f16;
+  --accent-dark: #5d310b;
+  --shadow: 0 24px 70px rgba(74, 41, 14, 0.1);
+  background:
+    radial-gradient(circle at 50% 0, rgba(138, 79, 22, 0.08), transparent 34rem),
+    linear-gradient(180deg, #ffffff 0%, #fbfaf8 48%, #ffffff 100%);
+}
+
+.site-header {
+  min-height: 70px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(92, 58, 29, 0.1);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: none;
+  backdrop-filter: blur(22px) saturate(140%);
+}
+
+.longhorn-logo {
+  width: clamp(250px, 26vw, 390px);
+  height: 82px;
+}
+
+.header-contact {
+  margin-top: -0.25rem;
+  color: rgba(23, 17, 11, 0.58);
+  font-size: 0.69rem;
+  font-weight: 750;
+}
+
+.tabs,
+.admin-mode-tabs {
+  border-color: transparent;
+  background: rgba(247, 243, 238, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(92, 58, 29, 0.08);
+}
+
+.tab,
+.admin-mode-tabs a,
+.admin-mode-tabs button {
+  border-radius: 4px;
+  color: rgba(23, 17, 11, 0.68);
+  font-size: 0.78rem;
+  font-weight: 760;
+}
+
+.tab:hover,
+.tab:focus-visible,
+.tab.active {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.longhorn .tab.active,
+.admin-mode-tabs a.active,
+.admin-mode-tabs button.active {
+  background: var(--accent-dark);
+  color: #ffffff;
+}
+
+.nav-dropdown {
+  top: calc(100% + 7px);
+  border-color: rgba(92, 58, 29, 0.12);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 22px 52px rgba(74, 41, 14, 0.14);
+  backdrop-filter: blur(18px);
+}
+
+main {
+  width: min(1200px, calc(100% - 40px));
+}
+
+.panel {
+  min-height: calc(100vh - 108px);
+  padding: clamp(22px, 3vw, 44px) 0 58px;
+}
+
+.home-hero {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  min-height: clamp(170px, 26vh, 280px);
+  padding: clamp(22px, 4vw, 52px) 0 clamp(14px, 2.5vw, 30px);
+  text-align: center;
+}
+
+.home-hero .hero-kicker {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.home-hero h1 {
+  max-width: none;
+  margin: 0;
+  font-size: clamp(3.2rem, 8vw, 7.8rem);
+  font-weight: 850;
+  letter-spacing: 0;
+  line-height: 0.88;
+}
+
+.home-hero p:not(.hero-kicker) {
+  max-width: 610px;
+  margin: 0;
+  color: rgba(23, 17, 11, 0.68);
+  font-size: clamp(1rem, 1.55vw, 1.28rem);
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.rentals-layout.home-showcase {
+  grid-template-columns: minmax(220px, 0.42fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: clamp(16px, 3.5vw, 42px);
+  min-height: auto;
+}
+
+.home-showcase .intro-copy {
+  top: 122px;
+}
+
+.home-actions {
+  align-content: start;
+  padding-top: 2.15rem;
+}
+
+.featured-heading {
+  margin-bottom: 0.7rem;
+  text-align: center;
+  font-size: clamp(0.82rem, 1.2vw, 0.95rem);
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.contact-cta,
+.book-link,
+.carfax-link,
+.carfax-detail-link,
+.sell-form button,
+.admin-actions .contact-cta {
+  min-height: 44px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.contact-cta {
+  border-color: transparent;
+  background: rgba(23, 17, 11, 0.86);
+  color: #ffffff;
+}
+
+.home-actions .contact-cta:nth-child(2),
+.home-actions .contact-cta:nth-child(3) {
+  background: rgba(247, 243, 238, 0.96);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px rgba(92, 58, 29, 0.12);
+}
+
+.contact-cta:hover,
+.contact-cta:focus-visible,
+.longhorn .contact-cta:hover,
+.longhorn .contact-cta:focus-visible {
+  border-color: transparent;
+  background: var(--accent-dark);
+  color: #ffffff;
+}
+
+.vehicle-card {
+  border-color: rgba(92, 58, 29, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 54px rgba(74, 41, 14, 0.09);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.vehicle-card:hover,
+.vehicle-card:focus-visible {
+  border-color: rgba(138, 79, 22, 0.28);
+  box-shadow: 0 28px 70px rgba(74, 41, 14, 0.13);
+}
+
+.home-showcase .vehicle-card {
+  grid-template-columns: 1.18fr 0.82fr;
+  min-height: clamp(420px, 48vw, 610px);
+}
+
+.home-showcase .vehicle-media {
+  min-height: 420px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(247, 243, 238, 0.75)),
+    #ffffff;
+}
+
+.home-showcase .vehicle-media img {
+  padding: clamp(18px, 4vw, 56px);
+}
+
+.vehicle-details {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(247, 243, 238, 0.92)),
+    var(--surface-soft);
+}
+
+.vehicle-details h2,
+.vehicle-detail-heading h1 {
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.vehicle-price {
+  border-radius: 4px;
+  background: var(--accent-dark);
+}
+
+.status-pill,
+.dealer-card .status-pill,
+.dealer-card .status-pill.available {
+  border-radius: 4px;
+  background: rgba(93, 49, 11, 0.88);
+  color: #ffffff;
+}
+
+.inventory-page-grid {
+  gap: 14px;
+}
+
+.inventory-page-grid .vehicle-card {
+  border-radius: 5px;
+  box-shadow: 0 12px 34px rgba(74, 41, 14, 0.07);
+}
+
+.inventory-search input,
+.admin-login input,
+.admin-form input,
+.admin-form select,
+.admin-form textarea,
+.admin-search input,
+.sell-form input,
+.sell-form textarea {
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.inventory-type-filter label,
+.detail-specs div,
+.info-list article,
+.contact-list div,
+.sell-form,
+.admin-form,
+.admin-filter,
+.analytics-heading,
+.analytics-card,
+.analytics-stats article,
+.vehicle-detail-media,
+.contact-map,
+.image-drop,
+.admin-photo-item,
+.admin-list button {
+  border-radius: 5px;
+}
+
+.page-heading {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.page-heading h1,
+.info-layout h1,
+.contact-wrap h1,
+.sell-layout h1 {
+  max-width: none;
+  font-size: clamp(2.6rem, 6vw, 5.4rem);
+  line-height: 0.95;
+}
+
+.page-heading .lede,
+.contact-wrap .lede,
+.info-layout .lede,
+.sell-layout .lede {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.contact-wrap,
+.info-layout,
+.sell-layout,
+.vehicle-detail-layout {
+  padding-top: clamp(18px, 3vw, 38px);
+}
+
+.why-longhorn {
+  margin-top: clamp(28px, 5vw, 64px);
+  padding-top: clamp(22px, 3vw, 40px);
+}
+
+.why-longhorn-points article span {
+  border-color: rgba(138, 79, 22, 0.3);
+  border-radius: 999px;
+  background: var(--accent-dark);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.site-footer {
+  width: min(1200px, calc(100% - 40px));
+  color: rgba(23, 17, 11, 0.52);
+}
+
+@media (max-width: 860px) {
+  .site-header {
+    padding: 10px 14px 12px;
+  }
+
+  .longhorn-logo {
+    width: min(320px, 84vw);
+    height: 76px;
+  }
+
+  .header-contact {
+    margin-top: -0.45rem;
+  }
+
+  .home-hero {
+    min-height: 190px;
+    padding-top: 22px;
+  }
+
+  .rentals-layout.home-showcase,
+  .home-showcase .vehicle-card {
+    grid-template-columns: 1fr;
+  }
+
+  .home-actions {
+    grid-template-columns: 1fr;
+    padding-top: 0;
+  }
+
+  .home-showcase .intro-copy {
+    position: static;
+  }
+
+  .home-showcase .vehicle-media {
+    min-height: 0;
+  }
+
+  .contact-wrap,
+  .info-layout,
+  .sell-layout,
+  .vehicle-detail-layout {
+    padding-top: 4px;
+  }
+}
+
+@media (max-width: 520px) {
+  .site-header {
+    width: 100%;
+  }
+
+  .home-hero h1 {
+    font-size: clamp(3rem, 16vw, 4.7rem);
+  }
+
+  .home-hero p:not(.hero-kicker) {
+    font-size: 1rem;
+  }
+}
