@@ -10,6 +10,7 @@ __pycache__/
 .env
 .env.*
 LONGHORN_TEXASEVHAUS_HANDOFF.md
+*HANDOFF*.md
 
 # Local tooling environments
 .oci-cli-venv/
