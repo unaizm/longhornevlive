@@ -1,0 +1,19 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+
+# Local credentials and machine-specific deployment files
+.ssh-deploy/
+.github-deploy/
+*.key
+*.pem
+.env
+.env.*
+LONGHORN_TEXASEVHAUS_HANDOFF.md
+
+# Local tooling environments
+.oci-cli-venv/
+.oci-cli-venv-arm-*/
+
+# Older local API draft contains hardcoded credentials; use longhorn_api.py.remote.
+longhorn_api.py

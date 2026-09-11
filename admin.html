@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Longhorn EV admin inventory editor.">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin | Longhorn EV</title>
+    <link rel="stylesheet" href="styles.css?v=20260910homeactions4">
+  </head>
+  <body class="longhorn">
+    <header class="site-header">
+      <a class="brand longhorn-brand" href="/" aria-label="Longhorn EV home">
+        <img class="longhorn-logo" src="assets/longhorn-ev-logo-transparent.png" alt="Longhorn EV">
+      </a>
+      <div class="header-actions">
+        <div class="header-contact" aria-label="Longhorn EV contact information">
+          <a href="https://www.google.com/maps/place/Longhorn+EV/@30.5142246,-97.522279,17z/data=!3m1!4b1!4m6!3m5!1s0x8644dd09bd920f33:0x1696f8ba7f06ee65!8m2!3d30.51422!4d-97.5197041!16s%2Fg%2F11npydvwxf?entry=ttu&amp;g_ep=EgoyMDI2MDkwNi4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">1600 CR 134 Unit 18, Hutto, TX 78634</a>
+          <a href="tel:5129001036">(512)-900-1036</a>
+        </div>
+
+        <nav class="tabs" aria-label="Primary navigation">
+        <a class="tab" href="/">Home</a>
+        <a class="tab" href="inventory.html">Inventory</a>
+        <a class="tab" href="/sell">Sell Your Vehicle</a>
+        <div class="nav-menu">
+          <a class="tab" href="/#about">About Us ▾</a>
+          <div class="nav-dropdown" aria-label="Contact and company pages">
+            <a href="/#about">About Us</a>
+            <a href="/#promise">The Longhorn Promise</a>
+          </div>
+        </div>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel active admin-panel" aria-labelledby="admin-title">
+        <div class="page-heading">
+          <p class="eyebrow">Longhorn EV</p>
+          <h1 id="admin-title">Admin</h1>
+          <p class="lede">Manage inventory listings.</p>
+        </div>
+
+        <div class="admin-login" id="admin-login">
+          <label for="admin-username">Username</label>
+          <input id="admin-username" autocomplete="username" placeholder="Enter admin username">
+          <label for="admin-password">Password</label>
+          <input id="admin-password" type="password" autocomplete="current-password" placeholder="Enter admin password">
+          <button class="book-link" type="button" id="admin-login-button">Log in</button>
+          <p class="admin-note" id="admin-login-message"></p>
+        </div>
+
+        <div class="admin-workspace" id="admin-workspace" hidden>
+          <div class="admin-mode-tabs" aria-label="Admin sections">
+            <button class="active" type="button" data-admin-view="inventory">Inventory Editor</button>
+            <button type="button" data-admin-view="analytics">Analytics</button>
+          </div>
+
+          <div class="admin-inventory-view" id="admin-inventory-view">
+            <div class="admin-actions">
+              <button class="book-link" type="button" id="admin-new-car">Add Car</button>
+            </div>
+
+            <form class="admin-form" id="admin-form">
+              <input type="hidden" id="car-id">
+              <label>
+                Inventory #
+                <input id="car-number" readonly>
+              </label>
+              <label>
+                Year / Make / Model
+                <input id="car-name" required>
+              </label>
+              <label>
+                Trim
+                <input id="car-trim" placeholder="Long Range">
+              </label>
+              <label>
+                Status
+                <select id="car-status">
+                  <option>Coming soon</option>
+                  <option>Available</option>
+                  <option>Pending sale</option>
+                  <option>Sold</option>
+                </select>
+              </label>
+              <label>
+                Vehicle Type
+                <select id="car-type">
+                  <option>EV</option>
+                  <option>Non-EV</option>
+                </select>
+              </label>
+              <label>
+                Price
+                <input id="car-price" placeholder="TBD">
+              </label>
+              <label>
+                Exterior
+                <input id="car-exterior">
+              </label>
+              <label>
+                Interior
+                <input id="car-interior">
+              </label>
+              <label>
+                Mileage
+                <input id="car-mileage">
+              </label>
+              <label>
+                VIN
+                <input id="car-vin">
+              </label>
+              <label class="admin-toggle">
+                <input id="car-featured" type="checkbox">
+                Featured vehicle on home page
+              </label>
+              <input id="car-image" type="hidden">
+              <input id="car-carfax-image" type="hidden">
+              <div class="admin-upload-grid admin-form-wide">
+                <div class="image-drop" id="image-drop">
+                  <span>Drop vehicle photos here</span>
+                  <p>or click to upload from your computer</p>
+                  <input id="car-image-upload" type="file" accept="image/*" multiple>
+                </div>
+                <div class="image-drop" id="carfax-drop">
+                  <span>Drop Carfax image here</span>
+                  <p>or click to upload the Carfax image</p>
+                  <input id="car-carfax-upload" type="file" accept="image/*">
+                </div>
+              </div>
+              <div class="admin-photo-list admin-form-wide" id="admin-photo-list" aria-label="Vehicle photos"></div>
+              <div class="admin-photo-list admin-form-wide" id="admin-carfax-preview" aria-label="Carfax image"></div>
+              <label class="admin-form-wide">
+                Description
+                <textarea id="car-description" rows="4"></textarea>
+              </label>
+              <div class="admin-actions admin-form-wide">
+                <button class="book-link" type="submit">Save Car</button>
+                <button class="contact-cta" type="button" id="admin-delete">Delete Selected</button>
+              </div>
+            </form>
+
+            <aside class="admin-list-panel" aria-label="Editable inventory">
+              <label class="admin-search">
+                Search inventory
+                <input id="admin-search" type="search" placeholder="VIN, trim, color, status...">
+              </label>
+              <div class="admin-filter" aria-label="Inventory filters">
+                <label><input type="checkbox" data-admin-filter="all" checked> All vehicles</label>
+                <label><input type="checkbox" data-admin-filter="Available"> Available</label>
+                <label><input type="checkbox" data-admin-filter="Sold"> Sold</label>
+                <label><input type="checkbox" data-admin-filter="Pending sale"> Pending</label>
+                <label><input type="checkbox" data-admin-filter="Coming soon"> Coming soon</label>
+              </div>
+              <div class="admin-list" id="admin-list"></div>
+            </aside>
+          </div>
+
+          <section class="analytics-preview" id="admin-analytics-view" aria-labelledby="analytics-title" hidden>
+            <div class="analytics-heading">
+              <div>
+                <h2 id="analytics-title">Analytics</h2>
+                <p>Lightweight server log summary for visits, visitor sources, and vehicle page views.</p>
+              </div>
+              <span id="analytics-range">Last 30 days</span>
+            </div>
+
+            <div class="analytics-stats" id="analytics-stats" aria-label="Analytics summary"></div>
+
+            <div class="analytics-grid">
+              <article class="analytics-card">
+                <div class="analytics-card-title">
+                  <h3>Visitor Locations</h3>
+                  <span>Approximate</span>
+                </div>
+                <div class="analytics-bars" id="analytics-locations"></div>
+                <button class="analytics-show-more" type="button" id="analytics-locations-more" hidden>Show more</button>
+              </article>
+
+              <article class="analytics-card">
+                <div class="analytics-card-title">
+                  <h3>Vehicle Page Views</h3>
+                  <span>By listing</span>
+                </div>
+                <div class="analytics-table" id="analytics-vehicles" role="table" aria-label="Vehicle views"></div>
+              </article>
+
+              <article class="analytics-card">
+                <div class="analytics-card-title">
+                  <h3>Top Pages</h3>
+                  <span>Traffic</span>
+                </div>
+                <div class="analytics-table" id="analytics-pages" role="table" aria-label="Top pages"></div>
+              </article>
+
+              <article class="analytics-card">
+                <div class="analytics-card-title">
+                  <h3>Notes</h3>
+                  <span>Private</span>
+                </div>
+                <ul class="analytics-notes">
+                  <li>Available only after admin login.</li>
+                  <li>Uses NGINX access logs already stored on the server.</li>
+                  <li>No cookies, tracking script, database, or third-party analytics.</li>
+                  <li>Locations are approximate city/state or metro-area estimates from the server GeoIP database.</li>
+                </ul>
+              </article>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>© 2026 Longhorn EV LLC</span>
+    </footer>
+
+    <script src="longhorn.js?v=20260902openfilters1"></script>
+    <script src="longhorn-admin.js?v=20260608evonly1"></script>
+  </body>
+</html>

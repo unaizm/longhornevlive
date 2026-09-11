@@ -1,0 +1,628 @@
+#!/usr/bin/env python3
+import cgi
+import gzip
+import hashlib
+import json
+import os
+import re
+import secrets
+import subprocess
+import time
+from collections import Counter
+from datetime import datetime, timedelta, timezone
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from urllib.parse import parse_qs, quote, urlencode, urlparse
+from urllib.request import Request, urlopen
+from xml.etree import ElementTree
+
+ROOT = Path(os.environ.get("LONGHORN_ROOT", "/var/www/longhornev"))
+LOG_DIR = Path(os.environ.get("LONGHORN_NGINX_LOG_DIR", "/var/log/nginx"))
+GEOIP_CITY_DB = Path(os.environ.get("LONGHORN_GEOIP_CITY_DB", "/usr/share/GeoIP/GeoLite2-City.mmdb"))
+DATA_DIR = ROOT / "data"
+UPLOAD_DIR = ROOT / "assets" / "uploads"
+DATA_FILE = DATA_DIR / "inventory.json"
+SITEMAP_FILE = ROOT / "sitemap.xml"
+ADMIN_USERNAME = os.environ.get("LONGHORN_ADMIN_USERNAME", "")
+ADMIN_PASSWORD = os.environ.get("LONGHORN_ADMIN_PASSWORD", "")
+QUOTE_EMAIL_TO = os.environ.get("LONGHORN_QUOTE_EMAIL_TO", "LonghornEV@outlook.com")
+TOKENS = {}
+TOKEN_TTL = 60 * 60 * 8
+LOCATION_CACHE = {}
+FAILED_LOGINS = {}
+QUOTE_REQUESTS = {}
+MAX_LOGIN_ATTEMPTS = 5
+LOCKOUT_SECONDS = 60 * 30
+MAX_QUOTE_ATTEMPTS = 5
+QUOTE_WINDOW_SECONDS = 60 * 60
+QUOTE_SUBJECT = "New Sell/Trade in Request - Longhorn EV"
+
+SAMPLE_INVENTORY = [
+    {
+        "id": "2021-tesla-model-3-long-range",
+        "number": 1,
+        "name": "2021 Tesla Model 3",
+        "trim": "Long Range",
+        "status": "Coming soon",
+        "price": "TBD",
+        "exterior": "White",
+        "interior": "Black",
+        "mileage": "TBD",
+        "vin": "TBD",
+        "type": "EV",
+        "image": "assets/model-3-2021-white.png",
+        "photos": ["assets/model-3-2021-white.png"],
+        "carfaxImage": "",
+        "featured": True,
+        "description": "A clean electric sedan with a minimalist cabin, strong range, and the modern driving feel Longhorn EV is built around.",
+        "highlights": ["Long Range", "All-electric", "Premium interior", "Fast charging capable"],
+    }
+]
+
+
+def ensure_files():
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    if not DATA_FILE.exists():
+        write_inventory(SAMPLE_INVENTORY)
+
+
+def normalize(cars):
+    normalized = []
+    for index, car in enumerate(cars):
+        item = dict(car)
+        item.setdefault("number", index + 1)
+        item.setdefault("id", f"car-{item['number']}")
+        item.setdefault("name", "EV Listing")
+        item.setdefault("trim", "")
+        for known_trim in ["Long Range", "Performance", "Standard Range", "Plaid"]:
+            if not item["trim"] and item["name"].endswith(f" {known_trim}"):
+                item["name"] = item["name"][: -len(known_trim)].strip()
+                item["trim"] = known_trim
+                break
+        item.setdefault("status", "Coming soon")
+        item.setdefault("price", "TBD")
+        item.setdefault("exterior", "TBD")
+        item.setdefault("interior", "TBD")
+        item.setdefault("mileage", "TBD")
+        item.setdefault("vin", "TBD")
+        item["type"] = "Non-EV" if str(item.get("type", "EV")).lower().startswith("non") else "EV"
+        item.setdefault("image", "assets/model-3-2021-white.png")
+        photos = item.get("photos")
+        if not isinstance(photos, list):
+            photos = []
+        photos = [photo for photo in photos if isinstance(photo, str) and photo.strip()]
+        if item.get("image") and item["image"] not in photos:
+            photos.insert(0, item["image"])
+        item["photos"] = photos or ["assets/model-3-2021-white.png"]
+        item["image"] = item["photos"][0]
+        item.setdefault("carfaxImage", "")
+        item["featured"] = bool(item.get("featured", False))
+        item.setdefault("description", "")
+        item.setdefault("highlights", ["Electric vehicle"])
+        normalized.append(item)
+    return normalized
+
+
+def read_inventory():
+    ensure_files()
+    with DATA_FILE.open("r", encoding="utf-8") as handle:
+        return normalize(json.load(handle))
+
+
+def write_inventory(cars):
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    normalized_cars = normalize(cars)
+    tmp = DATA_FILE.with_suffix(".json.tmp")
+    with tmp.open("w", encoding="utf-8") as handle:
+        json.dump(normalized_cars, handle, indent=2)
+        handle.write("\n")
+    tmp.replace(DATA_FILE)
+    write_sitemap(normalized_cars)
+
+
+def write_sitemap(cars):
+    namespace = "http://www.sitemaps.org/schemas/sitemap/0.9"
+    ElementTree.register_namespace("", namespace)
+    urlset = ElementTree.Element(f"{{{namespace}}}urlset")
+    today = datetime.now(timezone.utc).date().isoformat()
+    entries = [
+        ("https://longhornev.com/", "weekly", "1.0"),
+        ("https://longhornev.com/inventory.html", "daily", "0.9"),
+        ("https://longhornev.com/sell", "monthly", "0.8"),
+    ]
+    entries.extend(
+        (
+            f"https://longhornev.com/vehicle.html?id={quote(str(car.get('id', '')))}",
+            "weekly",
+            "0.8",
+        )
+        for car in cars
+        if car.get("id")
+    )
+    for location, frequency, priority in entries:
+        url = ElementTree.SubElement(urlset, f"{{{namespace}}}url")
+        ElementTree.SubElement(url, f"{{{namespace}}}loc").text = location
+        ElementTree.SubElement(url, f"{{{namespace}}}lastmod").text = today
+        ElementTree.SubElement(url, f"{{{namespace}}}changefreq").text = frequency
+        ElementTree.SubElement(url, f"{{{namespace}}}priority").text = priority
+    tree = ElementTree.ElementTree(urlset)
+    tmp = SITEMAP_FILE.with_suffix(".xml.tmp")
+    tree.write(tmp, encoding="utf-8", xml_declaration=True)
+    tmp.replace(SITEMAP_FILE)
+
+
+def json_bytes(payload):
+    return json.dumps(payload).encode("utf-8")
+
+
+LOG_PATTERN = re.compile(r'^(\S+)\s+\S+\s+\S+\s+\[([^\]]+)\]\s+"([A-Z]+)\s+([^"]+?)\s+HTTP/[0-9.]+"\s+(\d{3})\s+(\S+)')
+MMDB_QUOTED_VALUE = re.compile(r'"([^"]+)"')
+STATIC_EXTENSIONS = (".css", ".js", ".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico", ".svg", ".map", ".txt", ".xml")
+METRO_ALIASES = {
+    "texas": {
+        "addison": "Dallas",
+        "allen": "Dallas",
+        "arlington": "Dallas",
+        "carrollton": "Dallas",
+        "cedar park": "Austin",
+        "dallas": "Dallas",
+        "denton": "Dallas",
+        "euless": "Dallas",
+        "fort worth": "Dallas",
+        "frisco": "Dallas",
+        "garland": "Dallas",
+        "georgetown": "Austin",
+        "grand prairie": "Dallas",
+        "grapevine": "Dallas",
+        "hutto": "Austin",
+        "irving": "Dallas",
+        "leander": "Austin",
+        "mckinney": "Dallas",
+        "mesquite": "Dallas",
+        "plano": "Dallas",
+        "round rock": "Austin",
+        "san marcos": "Austin",
+        "southlake": "Dallas",
+        "the colony": "Dallas",
+    }
+}
+
+
+def mask_ip(ip):
+    if "." in ip:
+        parts = ip.split(".")
+        return ".".join(parts[:3] + ["xxx"]) if len(parts) == 4 else ip
+    if ":" in ip:
+        return ":".join(ip.split(":")[:3]) + "::"
+    return ip
+
+
+def mmdb_value(ip, *path):
+    if not GEOIP_CITY_DB.exists():
+        return ""
+    try:
+        output = subprocess.check_output(
+            ["mmdblookup", "-f", str(GEOIP_CITY_DB), "-i", ip, *path],
+            text=True,
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    match = MMDB_QUOTED_VALUE.search(output)
+    return match.group(1).strip() if match else ""
+
+
+def normalize_location(city, state, country):
+    city = (city or "").strip()
+    state = (state or "").strip()
+    country = (country or "").strip()
+    if city and state:
+        metro = METRO_ALIASES.get(state.lower(), {}).get(city.lower(), city)
+        return f"{metro}, {state}"
+    if state and country == "United States":
+        return state
+    if country:
+        return country
+    return "Unknown location"
+
+
+def location_label(ip):
+    cached = LOCATION_CACHE.get(ip)
+    if cached:
+        return cached
+    city = mmdb_value(ip, "city", "names", "en")
+    state = mmdb_value(ip, "subdivisions", "0", "names", "en")
+    country = mmdb_value(ip, "country", "names", "en")
+    label = normalize_location(city, state, country)
+    LOCATION_CACHE[ip] = label
+    return label
+
+
+def page_label(path):
+    if path in ["", "/"]:
+        return "Home"
+    if path in ["/inventory.html", "/inventory"]:
+        return "Inventory"
+    if path in ["/vehicle.html", "/vehicle"]:
+        return "Vehicle details"
+    if path in ["/buy.html", "/buy"]:
+        return "Buy redirect"
+    return path.strip("/") or "Home"
+
+
+def is_page_request(path):
+    if path.startswith("/api/") or path.startswith("/assets/"):
+        return False
+    if path.startswith("/admin") or path.endswith("longhorn-admin.js"):
+        return False
+    if path.endswith(STATIC_EXTENSIONS):
+        return False
+    return path in ["", "/", "/inventory", "/inventory.html", "/vehicle", "/vehicle.html", "/buy", "/buy.html"]
+
+
+def open_log(path):
+    if path.suffix == ".gz":
+        return gzip.open(path, "rt", encoding="utf-8", errors="ignore")
+    return path.open("r", encoding="utf-8", errors="ignore")
+
+
+def log_files():
+    today = datetime.now(timezone.utc).date()
+    candidates = [LOG_DIR / "access.log"]
+    for offset in range(0, 35):
+        day = today - timedelta(days=offset)
+        suffix = day.strftime("%Y%m%d")
+        candidates.append(LOG_DIR / f"access.log-{suffix}")
+        candidates.append(LOG_DIR / f"access.log-{suffix}.gz")
+    return [path for path in candidates if path.exists()]
+
+
+def read_analytics(days=30):
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    inventory_names = {car.get("id"): " ".join([car.get("name", ""), car.get("trim", "")]).strip() for car in read_inventory()}
+    page_views = Counter()
+    vehicle_views = Counter()
+    visitor_sources = Counter()
+    unique_visitors = set()
+    total_visits = 0
+
+    for path in log_files():
+      try:
+        with open_log(path) as handle:
+            for line in handle:
+                match = LOG_PATTERN.match(line)
+                if not match:
+                    continue
+                ip, date_text, method, target, status_text, _size = match.groups()
+                if method != "GET":
+                    continue
+                try:
+                    status = int(status_text)
+                    visited_at = datetime.strptime(date_text, "%d/%b/%Y:%H:%M:%S %z")
+                except ValueError:
+                    continue
+                if status >= 400 or visited_at < cutoff:
+                    continue
+                parsed = urlparse(target)
+                path_only = parsed.path
+                if not is_page_request(path_only):
+                    continue
+                total_visits += 1
+                unique_visitors.add(ip)
+                visitor_sources[location_label(ip)] += 1
+                page_views[page_label(path_only)] += 1
+                if path_only in ["/vehicle.html", "/vehicle"]:
+                    car_id = parse_qs(parsed.query).get("id", ["Unknown vehicle"])[0]
+                    vehicle_views[inventory_names.get(car_id, car_id or "Unknown vehicle")] += 1
+      except OSError:
+        continue
+
+    top_vehicle = vehicle_views.most_common(1)
+    return {
+        "range": f"Last {days} days",
+        "summary": {
+            "totalVisits": total_visits,
+            "uniqueVisitors": len(unique_visitors),
+            "vehicleViews": sum(vehicle_views.values()),
+            "topVehicle": top_vehicle[0][0] if top_vehicle else "",
+        },
+        "visitorSources": [{"label": label, "count": count} for label, count in visitor_sources.most_common(24)],
+        "vehicleViews": [{"label": label, "count": count} for label, count in vehicle_views.most_common(10)],
+        "topPages": [{"label": label, "count": count} for label, count in page_views.most_common(10)],
+    }
+
+
+def safe_filename(name):
+    stem, ext = os.path.splitext(name or "upload.jpg")
+    ext = ext.lower() if ext.lower() in [".jpg", ".jpeg", ".png", ".webp", ".gif"] else ".jpg"
+    safe_stem = "".join(ch if ch.isalnum() else "-" for ch in stem.lower()).strip("-") or "upload"
+    digest = hashlib.sha256(f"{safe_stem}-{time.time()}-{secrets.token_hex(4)}".encode()).hexdigest()[:10]
+    return f"{safe_stem}-{digest}{ext}"
+
+
+def uploaded_file_from_path(path):
+    if not path.startswith("assets/uploads/"):
+        return None
+    target = (ROOT / path).resolve()
+    upload_root = UPLOAD_DIR.resolve()
+    if upload_root not in target.parents:
+        return None
+    return target
+
+
+def valid_token(header):
+    if not header.startswith("Bearer "):
+        return False
+    token = header.split(" ", 1)[1]
+    created = TOKENS.get(token)
+    if not created:
+        return False
+    if time.time() - created > TOKEN_TTL:
+        TOKENS.pop(token, None)
+        return False
+    return True
+
+
+def client_ip_from_headers(headers):
+    forwarded_for = headers.get("X-Forwarded-For", "")
+    if forwarded_for:
+        return forwarded_for.split(",", 1)[0].strip()
+    return headers.get("X-Real-IP", "") or "unknown"
+
+
+def login_lockout(ip):
+    record = FAILED_LOGINS.get(ip)
+    if not record:
+        return 0
+    attempts = record.get("attempts", 0)
+    locked_until = record.get("locked_until", 0)
+    now = time.time()
+    if locked_until and locked_until > now:
+        return int(locked_until - now)
+    if locked_until and locked_until <= now:
+        FAILED_LOGINS.pop(ip, None)
+        return 0
+    if attempts >= MAX_LOGIN_ATTEMPTS:
+        record["locked_until"] = now + LOCKOUT_SECONDS
+        return LOCKOUT_SECONDS
+    return 0
+
+
+def record_login_failure(ip):
+    now = time.time()
+    record = FAILED_LOGINS.get(ip, {"attempts": 0, "first_failed_at": now, "locked_until": 0})
+    if now - record.get("first_failed_at", now) > LOCKOUT_SECONDS:
+        record = {"attempts": 0, "first_failed_at": now, "locked_until": 0}
+    record["attempts"] = record.get("attempts", 0) + 1
+    if record["attempts"] >= MAX_LOGIN_ATTEMPTS:
+        record["locked_until"] = now + LOCKOUT_SECONDS
+    FAILED_LOGINS[ip] = record
+    return record
+
+
+def clear_login_failures(ip):
+    FAILED_LOGINS.pop(ip, None)
+
+
+def quote_rate_limited(ip):
+    now = time.time()
+    record = QUOTE_REQUESTS.get(ip, [])
+    record = [timestamp for timestamp in record if now - timestamp < QUOTE_WINDOW_SECONDS]
+    if len(record) >= MAX_QUOTE_ATTEMPTS:
+        QUOTE_REQUESTS[ip] = record
+        return True
+    record.append(now)
+    QUOTE_REQUESTS[ip] = record
+    return False
+
+
+def clean_quote_value(value, max_length=1200):
+    value = str(value or "").replace("\r", " ").strip()
+    value = re.sub(r"\n{3,}", "\n\n", value)
+    return value[:max_length]
+
+
+def send_quote_email(data, client_ip):
+    fields = [
+        ("Name", "Name"),
+        ("Phone", "Phone"),
+        ("Email", "Email"),
+        ("Year / Make / Model", "Vehicle"),
+        ("Trim", "Trim"),
+        ("Mileage", "Mileage"),
+        ("VIN", "VIN"),
+        ("Payoff / Loan Balance", "Payoff"),
+        ("Color", "Color"),
+        ("Overall Condition", "Condition"),
+        ("Additional Notes", "Additional Notes"),
+    ]
+    lines = [
+        "New Sell/Trade in Request - Longhorn EV",
+        "",
+        f"Submitted: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}",
+        f"Source IP: {client_ip}",
+        "",
+    ]
+    for label, key in fields:
+        lines.append(f"{label}: {clean_quote_value(data.get(key)) or 'Not provided'}")
+
+    reply_to = clean_quote_value(data.get("Email"), 320)
+    payload = {
+        "_subject": QUOTE_SUBJECT,
+        "_template": "table",
+        "_replyto": reply_to,
+        "message": "\n".join(lines),
+    }
+    for label, key in fields:
+        payload[label] = clean_quote_value(data.get(key)) or "Not provided"
+
+    request = Request(
+        f"https://formsubmit.co/ajax/{QUOTE_EMAIL_TO}",
+        data=urlencode(payload).encode("utf-8"),
+        headers={
+            "Accept": "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Origin": "https://longhornev.com",
+            "Referer": "https://longhornev.com/sell",
+            "User-Agent": "LonghornEV/1.0",
+        },
+        method="POST",
+    )
+    with urlopen(request, timeout=10) as response:
+        body = response.read().decode("utf-8", errors="replace")
+        if response.status >= 400:
+            raise RuntimeError(f"quote email service returned HTTP {response.status}")
+        try:
+            result = json.loads(body)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("quote email service returned an invalid response") from exc
+        if str(result.get("success")).lower() != "true":
+            raise RuntimeError(result.get("message") or "quote email service did not accept the request")
+
+
+class Handler(BaseHTTPRequestHandler):
+    server_version = "LonghornInventoryAPI/1.0"
+
+    def log_message(self, fmt, *args):
+        print(f"{self.address_string()} - {fmt % args}", flush=True)
+
+    def send_json(self, status, payload):
+        body = json_bytes(payload)
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def read_json(self):
+        length = int(self.headers.get("Content-Length", "0"))
+        if length <= 0:
+            return {}
+        return json.loads(self.rfile.read(length).decode("utf-8"))
+
+    def require_auth(self):
+        if valid_token(self.headers.get("Authorization", "")):
+            return True
+        self.send_json(HTTPStatus.UNAUTHORIZED, {"error": "Unauthorized"})
+        return False
+
+    def do_GET(self):
+        path = urlparse(self.path).path
+        if path == "/api/health":
+            self.send_json(HTTPStatus.OK, {"ok": True})
+            return
+        if path == "/api/analytics":
+            if not self.require_auth():
+                return
+            self.send_json(HTTPStatus.OK, read_analytics())
+            return
+        if path == "/api/inventory":
+            self.send_json(HTTPStatus.OK, {"cars": read_inventory()})
+            return
+        self.send_json(HTTPStatus.NOT_FOUND, {"error": "Not found"})
+
+    def do_POST(self):
+        path = urlparse(self.path).path
+        if path == "/api/login":
+            client_ip = client_ip_from_headers(self.headers)
+            remaining_lockout = login_lockout(client_ip)
+            if remaining_lockout:
+                minutes = max(1, (remaining_lockout + 59) // 60)
+                self.send_json(HTTPStatus.TOO_MANY_REQUESTS, {"error": f"Too many failed attempts. Try again in {minutes} minutes."})
+                return
+            data = self.read_json()
+            if ADMIN_USERNAME and ADMIN_PASSWORD and data.get("username") == ADMIN_USERNAME and data.get("password") == ADMIN_PASSWORD:
+                clear_login_failures(client_ip)
+                token = secrets.token_urlsafe(32)
+                TOKENS[token] = time.time()
+                self.send_json(HTTPStatus.OK, {"token": token})
+            else:
+                record = record_login_failure(client_ip)
+                if record.get("locked_until", 0) > time.time():
+                    self.send_json(HTTPStatus.TOO_MANY_REQUESTS, {"error": "Too many failed attempts. Try again in 30 minutes."})
+                    return
+                self.send_json(HTTPStatus.UNAUTHORIZED, {"error": "Invalid username or password"})
+            return
+
+        if path == "/api/sell-quote":
+            if int(self.headers.get("Content-Length", "0")) > 20 * 1024:
+                self.send_json(HTTPStatus.BAD_REQUEST, {"error": "Request is too large"})
+                return
+            client_ip = client_ip_from_headers(self.headers)
+            if quote_rate_limited(client_ip):
+                self.send_json(HTTPStatus.TOO_MANY_REQUESTS, {"error": "Too many requests. Please try again later or call us directly."})
+                return
+            data = self.read_json()
+            if not clean_quote_value(data.get("Name")) or not clean_quote_value(data.get("Phone")) or not clean_quote_value(data.get("Vehicle")):
+                self.send_json(HTTPStatus.BAD_REQUEST, {"error": "Please include your name, phone, and vehicle."})
+                return
+            try:
+                send_quote_email(data, client_ip)
+            except Exception as error:
+                print(f"sell quote email failed: {error}", flush=True)
+                self.send_json(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "We could not send the request right now. Please call 512-900-1036."})
+                return
+            self.send_json(HTTPStatus.OK, {"ok": True})
+            return
+
+        if not self.require_auth():
+            return
+
+        if path == "/api/inventory":
+            data = self.read_json()
+            cars = normalize(data.get("cars", []))
+            write_inventory(cars)
+            self.send_json(HTTPStatus.OK, {"cars": cars})
+            return
+
+        if path == "/api/upload":
+            form = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={
+                "REQUEST_METHOD": "POST",
+                "CONTENT_TYPE": self.headers.get("Content-Type", ""),
+            })
+            file_item = form["image"] if "image" in form else None
+            if file_item is None or not getattr(file_item, "filename", ""):
+                self.send_json(HTTPStatus.BAD_REQUEST, {"error": "No image uploaded"})
+                return
+            filename = safe_filename(file_item.filename)
+            target = UPLOAD_DIR / filename
+            data = file_item.file.read()
+            if len(data) > 8 * 1024 * 1024:
+                self.send_json(HTTPStatus.BAD_REQUEST, {"error": "Image is too large"})
+                return
+            target.write_bytes(data)
+            self.send_json(HTTPStatus.OK, {"path": f"assets/uploads/{filename}"})
+            return
+
+        self.send_json(HTTPStatus.NOT_FOUND, {"error": "Not found"})
+
+    def do_DELETE(self):
+        path = urlparse(self.path).path
+        if not self.require_auth():
+            return
+        if path == "/api/car":
+            car_id = parse_qs(urlparse(self.path).query).get("id", [""])[0]
+            cars = [car for car in read_inventory() if car.get("id") != car_id]
+            write_inventory(cars or SAMPLE_INVENTORY)
+            self.send_json(HTTPStatus.OK, {"cars": read_inventory()})
+            return
+        if path == "/api/upload":
+            image_path = parse_qs(urlparse(self.path).query).get("path", [""])[0]
+            target = uploaded_file_from_path(image_path)
+            if target and target.exists():
+                target.unlink()
+            self.send_json(HTTPStatus.OK, {"deleted": bool(target)})
+            return
+        self.send_json(HTTPStatus.NOT_FOUND, {"error": "Not found"})
+
+
+if __name__ == "__main__":
+    ensure_files()
+    write_sitemap(read_inventory())
+    server = ThreadingHTTPServer(("127.0.0.1", 8081), Handler)
+    print("Longhorn inventory API listening on 127.0.0.1:8081", flush=True)
+    server.serve_forever()
