@@ -223,7 +223,7 @@ function carCard(car, featured = false) {
 function setupVehicleCards(scope = document) {
   scope.querySelectorAll(".vehicle-card[data-href]").forEach((card) => {
     card.addEventListener("click", (event) => {
-      if (event.target.closest("a, button")) return;
+      if (event.target.closest("a, button, img")) return;
       window.location.href = card.dataset.href;
     });
     card.addEventListener("keydown", (event) => {
@@ -231,6 +231,7 @@ function setupVehicleCards(scope = document) {
     });
   });
   setupPhotoArrows(scope);
+  setupPhotoViewer(scope);
 }
 
 function setupPhotoArrows(scope = document) {
@@ -257,6 +258,86 @@ function setupPhotoArrows(scope = document) {
     media.addEventListener("keydown", (event) => {
       if (event.key === "ArrowLeft") updatePhoto(-1);
       if (event.key === "ArrowRight") updatePhoto(1);
+    });
+  });
+}
+
+function getCurrentPhotoIndex(media) {
+  return Number(media.dataset.photoIndex) || 0;
+}
+
+function ensurePhotoViewer() {
+  let viewer = document.getElementById("photo-viewer");
+  if (viewer) return viewer;
+  viewer = document.createElement("div");
+  viewer.id = "photo-viewer";
+  viewer.className = "photo-viewer";
+  viewer.setAttribute("role", "dialog");
+  viewer.setAttribute("aria-modal", "true");
+  viewer.setAttribute("aria-label", "Vehicle photo viewer");
+  viewer.hidden = true;
+  viewer.innerHTML = `
+    <button class="photo-viewer-close" type="button" aria-label="Close photo viewer">×</button>
+    <button class="photo-viewer-arrow photo-viewer-prev" type="button" aria-label="Previous photo">‹</button>
+    <img src="" alt="Expanded vehicle photo">
+    <button class="photo-viewer-arrow photo-viewer-next" type="button" aria-label="Next photo">›</button>
+  `;
+  document.body.appendChild(viewer);
+  return viewer;
+}
+
+function openPhotoViewer(photos, startIndex = 0, alt = "Expanded vehicle photo") {
+  if (!photos.length) return;
+  const viewer = ensurePhotoViewer();
+  const image = viewer.querySelector("img");
+  const prev = viewer.querySelector(".photo-viewer-prev");
+  const next = viewer.querySelector(".photo-viewer-next");
+  let index = startIndex;
+
+  const render = () => {
+    image.src = photos[index];
+    image.alt = alt;
+    const hasMultiple = photos.length > 1;
+    prev.hidden = !hasMultiple;
+    next.hidden = !hasMultiple;
+  };
+
+  const close = () => {
+    viewer.hidden = true;
+    document.body.classList.remove("photo-viewer-open");
+  };
+
+  const step = (direction) => {
+    index = (index + direction + photos.length) % photos.length;
+    render();
+  };
+
+  viewer.onclick = (event) => {
+    if (event.target === viewer) close();
+  };
+  viewer.querySelector(".photo-viewer-close").onclick = close;
+  prev.onclick = () => step(-1);
+  next.onclick = () => step(1);
+  document.onkeydown = (event) => {
+    if (viewer.hidden) return;
+    if (event.key === "Escape") close();
+    if (event.key === "ArrowLeft") step(-1);
+    if (event.key === "ArrowRight") step(1);
+  };
+
+  render();
+  viewer.hidden = false;
+  document.body.classList.add("photo-viewer-open");
+}
+
+function setupPhotoViewer(scope = document) {
+  scope.querySelectorAll(".vehicle-media[data-photos] img, .vehicle-detail-media[data-photos] > img").forEach((image) => {
+    image.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const media = image.closest("[data-photos]");
+      const photos = media.dataset.photos.split("|").filter(Boolean);
+      openPhotoViewer(photos, getCurrentPhotoIndex(media), image.alt);
     });
   });
 }
@@ -386,6 +467,7 @@ async function renderVehicleDetail() {
     </div>
   `;
   setupPhotoArrows(target);
+  setupPhotoViewer(target);
   target.querySelectorAll(".vehicle-photo-strip button").forEach((button) => {
     button.addEventListener("click", () => {
       const media = target.querySelector(".vehicle-detail-media");

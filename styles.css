@@ -590,6 +590,7 @@ h1 {
   width: 100%;
   height: 100%;
   padding: 22px;
+  cursor: zoom-in;
   object-fit: contain;
 }
 
@@ -817,6 +818,7 @@ h1 {
   width: 100%;
   aspect-ratio: 16 / 10;
   padding: clamp(18px, 3vw, 34px);
+  cursor: zoom-in;
   object-fit: contain;
 }
 
@@ -877,6 +879,84 @@ h1 {
 
 .photo-arrow-next {
   right: 14px;
+}
+
+.photo-viewer-open {
+  overflow: hidden;
+}
+
+.photo-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: clamp(18px, 4vw, 48px);
+  background: rgba(18, 11, 5, 0.86);
+  backdrop-filter: blur(16px);
+}
+
+.photo-viewer[hidden] {
+  display: none;
+}
+
+.photo-viewer img {
+  display: block;
+  max-width: min(1180px, 92vw);
+  max-height: 84vh;
+  border-radius: 6px;
+  background: #ffffff;
+  object-fit: contain;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
+}
+
+.photo-viewer-close,
+.photo-viewer-arrow {
+  position: absolute;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text);
+  cursor: pointer;
+  line-height: 1;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.24);
+}
+
+.photo-viewer-close {
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  font-size: 2rem;
+}
+
+.photo-viewer-arrow {
+  top: 50%;
+  width: 46px;
+  height: 54px;
+  font-size: 2.1rem;
+  transform: translateY(-50%);
+}
+
+.photo-viewer-prev {
+  left: 20px;
+}
+
+.photo-viewer-next {
+  right: 20px;
+}
+
+.photo-viewer-close:hover,
+.photo-viewer-close:focus-visible,
+.photo-viewer-arrow:hover,
+.photo-viewer-arrow:focus-visible {
+  background: var(--accent-dark);
+  color: #ffffff;
+  outline: none;
 }
 
 .vehicle-detail-copy {
