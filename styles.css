@@ -3029,3 +3029,66 @@ body.home-page .longhorn-logo {
     grid-template-columns: 1fr;
   }
 }
+
+/* Centered Longhorn header layout */
+.longhorn .site-header,
+body.home-page .site-header {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 0;
+  padding-top: 10px;
+  padding-bottom: 12px;
+}
+
+.longhorn .brand,
+body.home-page .brand {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: center;
+}
+
+.longhorn .header-contact,
+body.home-page .header-contact {
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: center;
+  margin-top: -0.6rem;
+}
+
+.longhorn .tabs,
+body.home-page .tabs {
+  grid-column: 1;
+  grid-row: 3;
+  justify-self: center;
+}
+
+.longhorn .longhorn-logo,
+body.home-page .longhorn-logo {
+  width: clamp(300px, 34vw, 500px);
+  height: 98px;
+}
+
+@media (max-width: 860px) {
+  .longhorn .site-header,
+  body.home-page .site-header {
+    display: grid;
+    align-items: center;
+    padding: 10px 14px 12px;
+  }
+
+  .longhorn .tabs,
+  body.home-page .tabs {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .longhorn .longhorn-logo,
+  body.home-page .longhorn-logo {
+    width: min(320px, 84vw);
+    height: 76px;
+  }
+}
