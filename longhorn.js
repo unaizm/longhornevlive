@@ -397,7 +397,7 @@ async function renderInventory() {
   const title = document.getElementById("inventory-title");
   const selectedType = new URLSearchParams(location.search).get("type");
   if (evFilter) evFilter.checked = selectedType !== "non-ev";
-  if (nonEvFilter) nonEvFilter.checked = selectedType === "non-ev";
+  if (nonEvFilter) nonEvFilter.checked = selectedType !== "ev";
   const updateInventoryCopy = () => {
     const evSelected = Boolean(evFilter?.checked);
     const nonEvSelected = Boolean(nonEvFilter?.checked);
