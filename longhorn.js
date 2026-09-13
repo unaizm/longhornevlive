@@ -395,7 +395,9 @@ async function renderInventory() {
   const nonEvFilter = document.getElementById("inventory-filter-non-ev");
   const caption = document.getElementById("inventory-caption");
   const title = document.getElementById("inventory-title");
-  const selectedType = new URLSearchParams(location.search).get("type");
+  const searchParams = new URLSearchParams(location.search);
+  const selectedType = searchParams.get("type");
+  if (search) search.value = searchParams.get("q") || "";
   if (evFilter) evFilter.checked = selectedType !== "non-ev";
   if (nonEvFilter) nonEvFilter.checked = selectedType !== "ev";
   const updateInventoryCopy = () => {

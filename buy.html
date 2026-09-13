@@ -42,7 +42,7 @@
         ]
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260913inventorytab1">
+    <link rel="stylesheet" href="styles.css?v=20260913evauto1">
   </head>
   <body class="longhorn home-page">
     <header class="site-header">
@@ -70,7 +70,40 @@
 
     <main>
       <section class="panel active" id="home" aria-label="Longhorn EV home">
-        <div class="service-banner">White-glove sourcing · Texas-wide delivery · Offers on any vehicle</div>
+        <section class="dealer-hero" aria-labelledby="dealer-hero-title">
+          <div class="dealer-hero-media" aria-hidden="true">
+            <img src="assets/model-3-2021-white.png" alt="">
+          </div>
+          <div class="dealer-hero-content">
+            <p class="hero-kicker">Austin-area dealership serving all of Texas</p>
+            <h1 id="dealer-hero-title">Find the right vehicle with a sharper buying experience.</h1>
+            <p>Shop curated EV and non-EV inventory, get a real offer for your current vehicle, or let our team source the exact car you want.</p>
+            <form class="hero-search" action="inventory.html" method="get">
+              <label for="home-inventory-search">Search inventory</label>
+              <div>
+                <input id="home-inventory-search" name="q" type="search" placeholder="Search Tesla, Model 3, trim, VIN...">
+                <button type="submit">Search</button>
+              </div>
+            </form>
+            <div class="home-actions hero-actions" aria-label="Longhorn EV quick actions">
+              <a class="contact-cta primary" href="inventory.html">Browse Inventory</a>
+              <a class="contact-cta" href="tel:5129001036">Call Us</a>
+              <a class="contact-cta" href="sms:5129001036">Text Us</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="popular-models" aria-labelledby="popular-models-title">
+          <h2 id="popular-models-title">Popular Searches</h2>
+          <div>
+            <a href="inventory.html?q=Model%203">Model 3</a>
+            <a href="inventory.html?q=Model%20Y">Model Y</a>
+            <a href="inventory.html?q=Long%20Range">Long Range</a>
+            <a href="inventory.html?type=ev">EV Inventory</a>
+            <a href="inventory.html?type=non-ev">Non-EV Inventory</a>
+            <a href="/sell">Sell or Trade</a>
+          </div>
+        </section>
 
         <section class="shop-paths" aria-labelledby="shop-paths-title">
           <h2 id="shop-paths-title">Shop Your Way</h2>
@@ -161,6 +194,6 @@
     </footer>
 
     <script src="script.js?v=20260608evonly1"></script>
-    <script src="longhorn.js?v=20260913inventorytab1"></script>
+    <script src="longhorn.js?v=20260913evauto1"></script>
   </body>
 </html>
